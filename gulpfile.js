@@ -15,11 +15,12 @@ const fs = require('fs');
 
 // postcss plugins
 const autoprefixer = require('autoprefixer');
+const colorFunction = require('postcss-color-mod-function');
 const cssnano = require('cssnano');
 const easyimport = require('postcss-easy-import');
 
-const REPO = 'TryGhost/Source';
-const REPO_READONLY = 'TryGhost/Source';
+const REPO = 'TryGhost/Casper';
+const REPO_READONLY = 'TryGhost/Casper';
 const CHANGELOG_PATH = path.join(process.cwd(), '.', 'changelog.md');
 
 function serve(done) {
@@ -45,9 +46,10 @@ function hbs(done) {
 
 function css(done) {
     pump([
-        src('assets/css/screen.css', {sourcemaps: true}),
+        src('assets/css/*.css', {sourcemaps: true}),
         postcss([
             easyimport,
+            colorFunction(),
             autoprefixer(),
             cssnano()
         ]),
@@ -63,7 +65,7 @@ function js(done) {
             'assets/js/lib/*.js',
             'assets/js/*.js'
         ], {sourcemaps: true}),
-        concat('source.js'),
+        concat('casper.js'),
         uglify(),
         dest('assets/built/', {sourcemaps: '.'}),
         livereload()
@@ -128,7 +130,7 @@ exports.release = async () => {
         const compatibleWithGhost = result.compatibleWithGhost;
 
         const releasesResponse = await releaseUtils.releases.get({
-            userAgent: 'Source',
+            userAgent: 'Casper',
             uri: `https://api.github.com/repos/${REPO_READONLY}/releases`
         });
 
@@ -158,7 +160,7 @@ exports.release = async () => {
             preRelease: false,
             tagName: 'v' + newVersion,
             releaseName: newVersion,
-            userAgent: 'Source',
+            userAgent: 'Casper',
             uri: `https://api.github.com/repos/${REPO}/releases`,
             github: {
                 token: githubToken
